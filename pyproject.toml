@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "yasno-yasno-ege-bot"
+version = "1.0.0"
+description = ""
+authors = ["Hdjfhbfhfjfjfjfjjdjjrvtjfi <kibardin.alecsej@gmail.com>"]
+package-mode=false
+
+[tool.poetry.dependencies]
+python = "^3.9"
+aiogram = "^3.17.0"
+environs = "^11.2.1"
+tortoise-orm = "^0.23.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
