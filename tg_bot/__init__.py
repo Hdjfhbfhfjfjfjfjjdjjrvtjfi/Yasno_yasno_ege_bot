@@ -1,2 +1,4 @@
-__all__ = ["Config", "load_config", "init_database"]
-from tg_bot.utils import Config, load_config, init_database
+__all__ = ["Config", "routers", "init_database", "init_yookassa_api"]
+from tg_bot.utils.config import Config
+from tg_bot.utils.inits import init_database, init_yookassa_api
+from tg_bot.handlers import routers

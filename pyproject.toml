@@ -10,6 +10,9 @@ python = "^3.9"
 aiogram = "^3.17.0"
 environs = "^11.2.1"
 tortoise-orm = "^0.23.0"
+phonenumbers = "^9.0.1"
+yookassa = "^3.5.0"
+openpyxl = "^3.1.5"
 
 
 [build-system]
