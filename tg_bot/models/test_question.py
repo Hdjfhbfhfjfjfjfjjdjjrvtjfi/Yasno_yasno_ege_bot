@@ -1,9 +1,9 @@
 from __future__ import annotations
 __all__ = ["TestQuestion"]
-from typing import Optional, TYPE_CHECKING
-
 from tortoise import Model, BaseDBAsyncClient
 from tortoise.fields import UUIDField, TextField, ManyToManyField
+
+from typing import Optional, TYPE_CHECKING
 
 from tg_bot.models import TestAnswer, SchoolGrade
 from tg_bot.utils.interfaces import ICanAcceptVisitor

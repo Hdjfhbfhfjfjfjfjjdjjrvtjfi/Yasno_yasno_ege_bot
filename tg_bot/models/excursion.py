@@ -1,17 +1,18 @@
 from __future__ import annotations
 __all__ = ["Excursion"]
+from tortoise import Model, BaseDBAsyncClient
+from tortoise.fields import UUIDField, TextField, ManyToManyRelation, IntField
+
 from datetime import datetime
 
 from typing import Any, TYPE_CHECKING, Optional
-
-from tortoise import Model, BaseDBAsyncClient
-from tortoise.fields import UUIDField, TextField, ManyToManyRelation, IntField
 
 from tg_bot.utils.mixins import ClusterFetcherMixin
 from tg_bot.utils.interfaces import IEvent, ICanAcceptVisitor
 from tg_bot.utils.metaclasses import CombinedModelAndABCMeta
 if TYPE_CHECKING:
     from tg_bot.utils.interfaces import IVisitor
+    from tg_bot.utils.data_objects import EventData
 
 
 class Excursion(Model, ClusterFetcherMixin, IEvent, ICanAcceptVisitor, metaclass=CombinedModelAndABCMeta):
@@ -22,8 +23,8 @@ class Excursion(Model, ClusterFetcherMixin, IEvent, ICanAcceptVisitor, metaclass
     _hour = IntField(default=datetime.now().hour)
     _minute = IntField(default=datetime.now().minute)
     max_count_of_buyings = IntField()
-    address = TextField()
     price = IntField()
+    address = TextField()
     bot_user_profiles: ManyToManyRelation
 
     @classmethod
@@ -46,17 +47,32 @@ class Excursion(Model, ClusterFetcherMixin, IEvent, ICanAcceptVisitor, metaclass
         self._hour = value.hour
         self._minute = value.minute
 
+    @classmethod
+    async def get_outdated_events(cls, date: datetime) -> list["Excursion"]:
+        return (await cls.filter(_year__lt=date.year) +
+                await cls.filter(_year=date.year).filter(_month__lt=date.month) +
+                await cls.filter(_year=date.year).filter(_month=date.month).filter(_day__lt=date.day))
+
     def get_pay_text_args(self) -> list[Any]:
-        return [self.date, self.address]
+            return [self.date, self.address]
 
     async def get_count_of_buyings(self) -> int:
         return await self.bot_user_profiles.all().count()
 
     @classmethod
-    async def create_excursion(cls, _date: datetime, _address: str, _price: int, _max_count_of_buyings: int
-                               ) -> "Excursion":
-        excursion = await cls.create(address=_address, price=_price, max_count_of_buyings=_max_count_of_buyings)
-        excursion.date =_date
+    async def create_event(cls, event_data: EventData) -> "Excursion":
+        excursion = await cls.create(
+            address=event_data.string_field,
+            price=event_data.price,
+            max_count_of_buyings=event_data.max_count_of_buyings
+        )
+        excursion.date = datetime(
+            event_data.year,
+            event_data.month,
+            event_data.day,
+            event_data.hour,
+            event_data.minute
+        )
         await excursion.save()
         return excursion
 

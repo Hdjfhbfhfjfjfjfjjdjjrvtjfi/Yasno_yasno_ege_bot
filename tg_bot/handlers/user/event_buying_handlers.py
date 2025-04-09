@@ -17,10 +17,10 @@ from tg_bot.utils.texts import (get_choose_excursion_date_page_text, get_excursi
                                 get_excursion_pay_page_text, get_main_menu_page_text,
                                 get_knowledge_assesment_pay_page_text, get_knowledge_assesment_question_page_text,
                                 get_choose_knowledge_assesment_date_page_text, get_payment_fail_text,
-                                get_get_user_grade_text)
+                                get_get_user_grade_text, get_payment_succed_go_back_text)
 from tg_bot.utils.config import Config
-from tg_bot.keyboards import get_choose_event_date_page_keyboard, get_event_question_page_keyboard, \
-    get_event_pay_page_keyboard, get_main_menu_page_keyboard, get_get_user_grade_keyboard
+from tg_bot.keyboards import (get_choose_event_date_page_keyboard, get_event_question_page_keyboard,
+                              get_event_pay_page_keyboard, get_main_menu_page_keyboard, get_get_user_grade_keyboard)
 from tg_bot.models import Excursion, Order, User, KnowledgeAssesment, SchoolGrade
 from tg_bot.services import PaymentService
 from tg_bot.utils.wrap_classes import ExcursionProfile
@@ -47,12 +47,15 @@ async def choose_event_date_handler(call: CallbackQuery, config: Config,
         await call.message.edit_reply_markup(
             reply_markup=get_choose_event_date_page_keyboard(data, 0, count_of_clusters, callback_data.event)
         )
-
-    if callback_data.event == EventEnum.excursion:
-        args = [Excursion, get_choose_excursion_date_page_text()]
+    user: User = await User.get_user_by_id(call.message.chat.id)
+    if await user.get_order() is None:
+        if callback_data.event == EventEnum.excursion:
+            args = [Excursion, get_choose_excursion_date_page_text()]
+        else:
+            args = [KnowledgeAssesment, get_choose_knowledge_assesment_date_page_text()]
+        await process_event(*args)
     else:
-        args = [KnowledgeAssesment, get_choose_knowledge_assesment_date_page_text()]
-    await process_event(*args)
+        await call.answer(text=get_payment_succed_go_back_text())
 
 @router.callback_query(ChooseEventDatePageSwitchKeyboardCallbackData.filter())
 async def choose_event_date_switch_page_handler(call: CallbackQuery, config: Config,

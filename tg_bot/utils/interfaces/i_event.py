@@ -1,12 +1,16 @@
+from __future__ import annotations
 __all__ = ["IEvent"]
 from abc import ABC, abstractmethod
 
 from datetime import datetime
 
-from typing import Self, Any
+from typing import Self, Any, TYPE_CHECKING
 
 from tortoise.contrib.mysql.fields import UUIDField
 from tortoise.fields import IntField
+
+if TYPE_CHECKING:
+    from tg_bot.utils.data_objects import  EventData
 
 
 class IEvent(ABC):
@@ -32,6 +36,11 @@ class IEvent(ABC):
     def date(self, value: datetime) -> None:
         raise NotImplementedError
 
+    @classmethod
+    @abstractmethod
+    async def get_outdated_events(self, date: datetime) -> list[Self]:
+        raise NotImplementedError
+
     @abstractmethod
     async def get_count_of_buyings(self) -> int:
         raise NotImplementedError
@@ -39,6 +48,11 @@ class IEvent(ABC):
     @classmethod
     @abstractmethod
     async def get_by_id(cls, event_id: str) -> Self | None:
+        raise NotImplementedError
+
+    @classmethod
+    @abstractmethod
+    async def create_event(cls, event_data: EventData) -> Self:
         raise NotImplementedError
 
     @classmethod

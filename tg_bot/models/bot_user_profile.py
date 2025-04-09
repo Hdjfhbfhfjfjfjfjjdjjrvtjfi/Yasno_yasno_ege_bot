@@ -39,10 +39,6 @@ class BotUserProfile(Model, ICanAcceptVisitor, metaclass=CombinedModelAndABCMeta
         await self._knowledge_assesment.add(value.knowledge_assesment)
         await self._test_result.add(value.test_result)
 
-    async def delete_knowledge_assesment_profile(self) -> None:
-        await self._knowledge_assesment.clear()
-        await self._test_result.clear()
-
     async def get_excursion_profile(self) -> ExcursionProfile:
         return ExcursionProfile(await self._excursion.all().first())
 
@@ -50,14 +46,16 @@ class BotUserProfile(Model, ICanAcceptVisitor, metaclass=CombinedModelAndABCMeta
         await self._excursion.clear()
         await self._excursion.add(excursion_profile.excursion)
 
-    async def delete_excursion_profile(self) -> None:
-        await self._excursion.clear()
-
     async def has_excursion(self) -> bool:
         return (await self._excursion.all().count()) > 0
 
     async def has_knowledge_assesment(self) -> bool:
         return (await self._knowledge_assesment.all().count()) > 0
+
+    async def delete_test_result(self):
+        test_result = await self._test_result.all().first()
+        await self._test_result.clear()
+        await test_result.delete()
 
     @classmethod
     async def create_bot_user_profile(cls) -> "BotUserProfile":

@@ -1,7 +1,7 @@
 __all__ = ["CombinedModelAndABCMeta"]
-from tortoise.models import ModelMeta
-
 from abc import ABCMeta
+
+from tortoise.models import ModelMeta
 
 
 class CombinedModelAndABCMeta(ABCMeta, ModelMeta):

@@ -11,6 +11,7 @@ from tg_bot.models import (Administrator, BotUserProfile, Excursion, KnowledgeAs
 from tg_bot.utils.interfaces import ICanAcceptVisitor
 from tg_bot.utils.visitors.xlsx_visitor import XLSXVisitor
 
+
 router: Router = Router()
 
 

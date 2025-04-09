@@ -1,8 +1,8 @@
 __all__ = ["ClusterFetcherMixin"]
-from math import ceil
-
 from tortoise import Model
 from tortoise.queryset import QuerySet
+
+from math import ceil
 
 
 class ClusterFetcherMixin:

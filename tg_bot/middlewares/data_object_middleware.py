@@ -1,9 +1,9 @@
 __all__ = ["DataObjectMiddleware"]
-from typing import Callable, Dict, Any, Awaitable
-
 from aiogram import BaseMiddleware
 from aiogram.fsm.context import FSMContext
 from aiogram.types import TelegramObject
+
+from typing import Callable, Dict, Any, Awaitable
 
 
 class DataObjectMiddleware(BaseMiddleware):

@@ -13,6 +13,7 @@ tortoise-orm = "^0.23.0"
 phonenumbers = "^9.0.1"
 yookassa = "^3.5.0"
 openpyxl = "^3.1.5"
+apscheduler = "^3.11.0"
 
 
 [build-system]

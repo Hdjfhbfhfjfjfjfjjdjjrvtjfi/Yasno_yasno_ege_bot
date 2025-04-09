@@ -7,7 +7,7 @@ from aiogram.fsm.context import FSMContext
 from tg_bot.filters.commands import add_school_grade_command
 from tg_bot.models import SchoolGrade
 from tg_bot.utils.data_objects import SchoolGradeData
-from tg_bot.states import AddSchoolGradeFsm
+from tg_bot.states import AddSchoolGradeFSM
 from tg_bot.utils.texts import get_get_school_grade_grade_text
 from tg_bot.utils.constants import SCHOOL_GRADE_DATA_ARGUMENT_NAME
 
@@ -23,10 +23,10 @@ async def add_school_grade_handler(message: Message, bot: Bot, state: FSMContext
         chat_id=message.chat.id,
         text=get_get_school_grade_grade_text()
     )
-    await state.set_state(AddSchoolGradeFsm.grade)
+    await state.set_state(AddSchoolGradeFSM.grade)
     await state.set_data({SCHOOL_GRADE_DATA_ARGUMENT_NAME: school_grade_data})
 
-@router.message(StateFilter(AddSchoolGradeFsm.grade))
+@router.message(StateFilter(AddSchoolGradeFSM.grade))
 async def get_school_grade_grade_handler(message: Message, state: FSMContext, school_grade_data: SchoolGradeData):
     await message.delete()
     if message.text is not None and message.text.isdigit():

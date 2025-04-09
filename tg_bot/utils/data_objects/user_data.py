@@ -1,7 +1,7 @@
 __all__ = ["UserData"]
-from phonenumbers import parse, NumberParseException
-
 from aiogram.types import Message
+
+from phonenumbers import parse, NumberParseException
 
 from pydantic import BaseModel, ConfigDict
 from pydantic import field_validator

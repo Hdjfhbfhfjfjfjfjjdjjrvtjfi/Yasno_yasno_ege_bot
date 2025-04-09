@@ -1,17 +1,18 @@
 from __future__ import annotations
 __all__ = ["KnowledgeAssesment"]
+from tortoise import Model
+from tortoise.fields import UUIDField, TextField, IntField, ManyToManyRelation
+
 from datetime import datetime
 
 from typing import Any, TYPE_CHECKING, Optional
-
-from tortoise import Model
-from tortoise.fields import UUIDField, TextField, IntField, ManyToManyRelation
 
 from tg_bot.utils.mixins import ClusterFetcherMixin
 from tg_bot.utils.interfaces import IEvent, ICanAcceptVisitor
 from tg_bot.utils.metaclasses import CombinedModelAndABCMeta
 if TYPE_CHECKING:
     from tg_bot.utils.interfaces import IVisitor
+    from tg_bot.utils.data_objects import EventData
 
 
 class KnowledgeAssesment(Model, IEvent, ClusterFetcherMixin, ICanAcceptVisitor, metaclass=CombinedModelAndABCMeta):
@@ -22,8 +23,8 @@ class KnowledgeAssesment(Model, IEvent, ClusterFetcherMixin, ICanAcceptVisitor, 
     _hour = IntField(default=datetime.now().hour)
     _minute = IntField(default=datetime.now().minute)
     max_count_of_buyings = IntField()
-    webinar_link = TextField()
     price = IntField()
+    webinar_link = TextField()
     bot_user_profiles: ManyToManyRelation
 
     @classmethod
@@ -42,6 +43,13 @@ class KnowledgeAssesment(Model, IEvent, ClusterFetcherMixin, ICanAcceptVisitor, 
         self._hour = value.hour
         self._minute = value.minute
 
+    @classmethod
+    async def get_outdated_events(cls, date: datetime) -> list["KnowledgeAssesment"]:
+        return (await cls.filter(_year__lt=date.year) +
+                await cls.filter(_year=date.year).filter(_month__lt=date.month) +
+                await cls.filter(_year=date.year).filter(_month=date.month).filter(_day__lt=date.day))
+
+
     def get_pay_text_args(self) -> list[Any]:
         return [self.date, self.webinar_link]
 
@@ -49,11 +57,19 @@ class KnowledgeAssesment(Model, IEvent, ClusterFetcherMixin, ICanAcceptVisitor, 
         return await self.bot_user_profiles.all().count()
 
     @classmethod
-    async def create_knowledge_assesments(cls, _date: datetime, _webinar_link: str, _price: int,
-                                          _max_count_of_buyings: int) -> "KnowledgeAssesment":
-        knowledge_assesment = await cls.create(webinar_link=_webinar_link, price=_price,
-                                               max_count_of_buyings=_max_count_of_buyings)
-        knowledge_assesment.date = _date
+    async def create_event(cls, event_data: EventData) -> "KnowledgeAssesment":
+        knowledge_assesment = await cls.create(
+            webinar_link=event_data.string_field,
+            price=event_data.price,
+            max_count_of_buyings=event_data.max_count_of_buyings
+        )
+        knowledge_assesment.date = datetime(
+            event_data.year,
+            event_data.month,
+            event_data.day,
+            event_data.hour,
+            event_data.minute
+        )
         await knowledge_assesment.save()
         return knowledge_assesment
 

@@ -79,10 +79,6 @@ async def get_user_name_full_name_surname_handler(message: Message, state: FSMCo
         await user_data.last_message.edit_text(
             text=get_get_user_phone_number_page_text()
         )
-    else:
-        await user_data.last_message.edit_text(
-            text=get_get_user_name_full_name_surname_page_text()
-        )
 
 @router.message(StateFilter(UserRegistrationFSM.phone_number))
 async def get_user_phone_number_handler(message: Message, bot: Bot, state: FSMContext, user_data: UserData,
@@ -107,7 +103,3 @@ async def get_user_phone_number_handler(message: Message, bot: Bot, state: FSMCo
             )
         )
         await state.clear()
-    else:
-        await user_data.last_message.edit_text(
-            text=get_get_user_phone_number_page_text()
-        )

@@ -1,5 +1,5 @@
-__all__ = ["AddSchoolGradeFsm"]
+__all__ = ["AddSchoolGradeFSM"]
 from aiogram.fsm.state import State, StatesGroup
 
-class AddSchoolGradeFsm(StatesGroup):
+class AddSchoolGradeFSM(StatesGroup):
     grade = State()
