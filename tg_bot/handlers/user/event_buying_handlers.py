@@ -48,7 +48,9 @@ async def choose_event_date_handler(call: CallbackQuery, config: Config,
             reply_markup=get_choose_event_date_page_keyboard(data, 0, count_of_clusters, callback_data.event)
         )
     user: User = await User.get_user_by_id(call.message.chat.id)
-    if await user.get_order() is None:
+    order: Order = await user.get_order()
+    payment: PaymentService = PaymentService.get_payment_by_id(order.order_yookassa_id)
+    if not payment.is_succeed:
         if callback_data.event == EventEnum.excursion:
             args = [Excursion, get_choose_excursion_date_page_text()]
         else:

@@ -5,10 +5,7 @@ __all__ = ["GetUserDataPageCallbackData", "ChooseEventDatePageCallbackData", "Us
            "GetUserGradeCallbackData", "GetResponseToQuestionCallbackData", "QuestionSchoolGradeCallbackData"]
 from aiogram.filters.callback_data import CallbackData
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from tg_bot.utils.enums import EventEnum
+from tg_bot.utils.enums import EventEnum
 
 
 # <editor-fold desc="Registration and main menu callback data">
