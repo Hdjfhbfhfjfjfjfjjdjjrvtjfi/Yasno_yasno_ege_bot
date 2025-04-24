@@ -19,6 +19,19 @@ if TYPE_CHECKING:
 
 def get_choose_event_date_page_keyboard(events: tuple[tuple[UUID, datetime, bool], ...], cluster_index: int,
                                         count_of_clusters, event_type: EventEnum) -> InlineKeyboardMarkup:
+    """Creates a keyboard for selecting event dates with pagination and navigation options.
+    
+    The keyboard includes:
+    - A list of event dates with their availability status
+    - Navigation buttons for moving between clusters
+    - A button to return to the main menu
+
+    :param events: Tuple of event tuples containing (UUID, datetime, availability status)
+    :param cluster_index: Current cluster index for pagination
+    :param count_of_clusters: Total number of clusters available
+    :param event_type: Type of the event (excursion or knowledge assessment)
+    :return: InlineKeyboardMarkup with date selection and navigation options
+    """
     setlocale(LC_ALL, "Russian")
     keyboard = InlineKeyboardBuilder()
     for event in events:

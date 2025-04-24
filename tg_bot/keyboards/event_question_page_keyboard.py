@@ -10,6 +10,17 @@ if TYPE_CHECKING:
 
 
 def get_event_question_page_keyboard(connection_link: str, cluster_index: int, event_type: EventEnum) -> InlineKeyboardMarkup:
+    """Creates a keyboard for the event question page with question submission and navigation options.
+    
+    The keyboard includes buttons for:
+    - Submitting a question (via external link)
+    - Returning to the event date selection page
+
+    :param connection_link: URL for submitting questions
+    :param cluster_index: Index of the current cluster in the date selection
+    :param event_type: Type of the event (excursion or knowledge assessment)
+    :return: InlineKeyboardMarkup with question submission and navigation options
+    """
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(

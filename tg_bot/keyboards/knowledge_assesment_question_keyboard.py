@@ -4,6 +4,15 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton, 
 from tg_bot.filters.callback_data import GetResponseToQuestionCallbackData
 
 def get_knowledge_assesment_question_keyboard(answers: tuple[tuple[str, str], ...]) -> InlineKeyboardMarkup:
+    """Creates a keyboard for knowledge assessment questions with answer options.
+    
+    The keyboard includes:
+    - A list of answer options as buttons
+    - Each button contains the answer description and is linked to the corresponding answer ID
+    
+    :param answers: Tuple of answer tuples containing (answer_id, description)
+    :return: InlineKeyboardMarkup with answer options
+    """
     keyboard = InlineKeyboardBuilder()
     for answer_id, description in answers:
         keyboard.row(

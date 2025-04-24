@@ -8,7 +8,7 @@ from io import BytesIO
 from tg_bot.filters.commands import get_database_command
 from tg_bot.models import (Administrator, BotUserProfile, Excursion, KnowledgeAssesment, Order, SchoolGrade, TestAnswer,
                            TestQuestion, TestResponse, TestResult, User)
-from tg_bot.utils.interfaces import ICanAcceptVisitor
+from tg_bot.utils.interfaces import ICanAcceptModelVisitors
 from tg_bot.utils.visitors.xlsx_visitor import XLSXVisitor
 
 
@@ -19,7 +19,7 @@ router: Router = Router()
 async def get_database_handler(message: Message, bot: Bot) -> None:
     await message.delete()
     export_visitor = XLSXVisitor()
-    models: list[type[ICanAcceptVisitor]] = [Administrator, BotUserProfile, Excursion, KnowledgeAssesment, Order, SchoolGrade, TestAnswer,
+    models: list[type[ICanAcceptModelVisitors]] = [Administrator, BotUserProfile, Excursion, KnowledgeAssesment, Order, SchoolGrade, TestAnswer,
               TestQuestion, TestResponse, TestResult, User]
     for model in models:
         await model.accept(export_visitor)

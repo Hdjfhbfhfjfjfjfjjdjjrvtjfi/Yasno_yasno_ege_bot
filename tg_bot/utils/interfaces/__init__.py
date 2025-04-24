@@ -1,4 +1,4 @@
-__all__ = ["IEvent", "IVisitor", "ICanAcceptVisitor"]
+__all__ = ["IEvent", "IModelVisitor", "ICanAcceptModelVisitors"]
 from .i_event import IEvent
-from .i_visitor import IVisitor
-from .i_can_accept_visitor import ICanAcceptVisitor
+from .i_model_visitor import IModelVisitor
+from .i_can_accept_model_visitors import ICanAcceptModelVisitors

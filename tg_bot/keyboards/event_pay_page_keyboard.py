@@ -10,6 +10,18 @@ if TYPE_CHECKING:
 
 
 def get_event_pay_page_keyboard(payment_link: str, cluster_index: int, event_type: EventEnum) -> InlineKeyboardMarkup:
+    """Creates a keyboard for event payment page with payment and navigation options.
+    
+    The keyboard includes buttons for:
+    - Checking payment status
+    - Making payment (via external link)
+    - Returning to the event date selection page
+
+    :param payment_link: URL for making the payment
+    :param cluster_index: Index of the current cluster in the date selection
+    :param event_type: Type of the event (excursion or knowledge assessment)
+    :return: InlineKeyboardMarkup with payment and navigation options
+    """
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
