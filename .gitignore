@@ -4,3 +4,4 @@ venv
 database
 .idea
 test_data/
+.cursor/

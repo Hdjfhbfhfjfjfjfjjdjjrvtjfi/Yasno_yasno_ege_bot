@@ -1,12 +1,15 @@
 __all__ = ["TestResultData"]
+from aiogram.types import Message
+
 from pydantic import BaseModel, ConfigDict
 
 from typing import Optional
 
-from tg_bot.models import KnowledgeAssesment, TestResponse, TestQuestion, SchoolGrade
+from tg_bot.models import KnowledgeAssesment, TestResponse, TestQuestion, SchoolGrade, TestResult
+from tg_bot.utils.interfaces import IDataObject
 
 
-class TestResultData(BaseModel):
+class TestResultData(BaseModel, IDataObject):
     """Data class for storing and managing test result information.
 
     This class represents test result data including responses, questions,
@@ -41,4 +44,7 @@ class TestResultData(BaseModel):
         :return: The number of responses currently recorded
         """
         return len(self.responses)
+
+    async def create_model_instance(self) -> None:
+        await TestResult.create_test_result(self)
 

@@ -1,15 +1,17 @@
 __all__ = ["router"]
-from aiogram import Bot, Router
+from aiogram import Router
 from aiogram.filters import Command, StateFilter
-from aiogram.fsm.state import State
-from aiogram.types import Message, BotCommand
-from aiogram.fsm.context import FSMContext
+from aiogram.types import BotCommand, TelegramObject
 
+from tg_bot.handlers.abstract_handlers import FormBaseHandler
 from tg_bot.filters.commands import add_excursion_command, add_knowledge_assesment_command
 from tg_bot.models import Excursion, KnowledgeAssesment
 from tg_bot.utils.data_objects import EventData
 from tg_bot.utils.constants import EVENT_DATA_ARGUMENT_NAME
+from tg_bot.utils.message_builders import TextMessageBuilder
 from tg_bot.states import AddEventFSM
+from tg_bot.utils.mixins import CommandMixin
+from tg_bot.utils.enums import HandlerTypeEnum
 from tg_bot.utils.texts import (get_get_event_year_text, get_get_event_month_text, get_get_event_day_text,
                                 get_get_event_hour_text, get_get_event_minute_text, get_get_event_price_text,
                                 get_get_event_max_count_of_buyings_text, get_get_excursion_address_text,
@@ -18,119 +20,145 @@ from tg_bot.utils.texts import (get_get_event_year_text, get_get_event_month_tex
 
 router: Router = Router()
 
-
-async def process_event_numeric_state(message: Message, event_data: EventData, state: FSMContext, text: str,
-                                      next_state: State) -> int | None:
-    await message.delete()
-    result: int | None
-    if message.text is not None and message.text.isdigit():
-        result = int(message.text)
-    elif message.caption is not None and message.caption.isdigit():
-        result = int(message.caption)
-    if result is not None:
-        await event_data.last_message.edit_text(
-            text=text
-        )
-        await state.set_state(next_state)
-    return result
-
 @router.message(Command(commands=[add_excursion_command, add_knowledge_assesment_command]))
-async def add_event_handler(message: Message, state: FSMContext, bot: Bot, command: BotCommand):
-    await message.delete()
-    event_data: EventData = EventData()
-    if add_excursion_command.command == command.command:
-        event_data.event_type = Excursion
-    else:
-        event_data.event_type = KnowledgeAssesment
-    event_data.last_message = await bot.send_message(
-        chat_id=message.chat.id,
-        text=get_get_event_year_text()
-    )
-    await state.set_state(AddEventFSM.year)
-    await state.set_data({EVENT_DATA_ARGUMENT_NAME: event_data})
+class AddEventHandler(FormBaseHandler[EventData], CommandMixin, handler_type=HandlerTypeEnum.first_handler):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        await self.initialize_form_data(
+            EventData(),
+            TextMessageBuilder.send_new_message(
+                get_get_event_year_text(),
+                self.bot,
+                self.event.chat.id
+            ),
+            AddEventFSM.year,
+            EVENT_DATA_ARGUMENT_NAME,
+            self.command
+        )
+
+    async def _process_command(self, command: BotCommand):
+        if add_excursion_command.command == command.command:
+            self.data_object.event_type = Excursion
+        else:
+            self.data_object.event_type = KnowledgeAssesment
 
 @router.message(StateFilter(AddEventFSM.year))
-async def get_year_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.year = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_month_text(),
-        AddEventFSM.month
-    )
+class GetYearHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.year = await self.process_numeric_state(
+            AddEventFSM.month,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_month_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.month))
-async def get_month_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.month = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_day_text(),
-        AddEventFSM.day
-    )
+class GetMonthHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.month = await self.process_numeric_state(
+            AddEventFSM.day,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_day_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.day))
-async def get_day_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.day = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_hour_text(),
-        AddEventFSM.hour
-    )
+class GetDayHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.day = await self.process_numeric_state(
+            AddEventFSM.hour,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_hour_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.hour))
-async def get_hour_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.hour = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_minute_text(),
-        AddEventFSM.minute
-    )
+class GetHourHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.hour = await self.process_numeric_state(
+            AddEventFSM.minute,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_minute_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.minute))
-async def get_minute_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.minute = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_price_text(),
-        AddEventFSM.price
-    )
+class GetMinuteHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.minute = await self.process_numeric_state(
+            AddEventFSM.price,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_price_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.price))
-async def get_price_handler(message: Message, state: FSMContext, event_data: EventData):
-    event_data.price = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        get_get_event_max_count_of_buyings_text(),
-        AddEventFSM.max_count_of_buyings
-    )
+class GetPriceHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.price = await self.process_numeric_state(
+            AddEventFSM.max_count_of_buyings,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(get_get_event_max_count_of_buyings_text())
+        )
 
 @router.message(StateFilter(AddEventFSM.max_count_of_buyings))
-async def get_max_count_of_buyings_handler(message: Message, state: FSMContext, event_data: EventData):
-    if event_data.event_type == Excursion:
-        text = get_get_excursion_address_text()
-    else:
-        text = get_get_knowledge_assesment_link_text()
-    event_data.max_count_of_buyings = await process_event_numeric_state(
-        message,
-        event_data,
-        state,
-        text,
-        AddEventFSM.string_field
-    )
+class GetMaxCountHandler(FormBaseHandler[EventData]):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        if self.data_object.event_type == Excursion:
+            text = get_get_excursion_address_text()
+        else:
+            text = get_get_knowledge_assesment_link_text()
+        self.data_object.max_count_of_buyings = await self.process_numeric_state(
+            AddEventFSM.string_field,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message).
+            edit_text(text)
+        )
 
 @router.message(StateFilter(AddEventFSM.string_field))
-async def get_string_field_handler(message: Message, state: FSMContext, event_data: EventData):
-    await message.delete()
-    if message.text is not None:
-        event_data.string_field = message.text
-    elif message.caption is not None:
-        event_data.string_field = message.caption
-    if event_data.string_field is not None:
-        await event_data.event_type.create_event(event_data)
-        await event_data.last_message.delete()
-        await state.clear()
+class GetStringFieldHandler(FormBaseHandler[EventData], handler_type=HandlerTypeEnum.final_handler):
+
+    def __init__(self, event: TelegramObject, **kwargs) -> None:
+        self._data_object_argument_name = EVENT_DATA_ARGUMENT_NAME
+        super().__init__(event, **kwargs)
+
+    async def handle(self):
+        self.data_object.string_field = await self.process_text_state(
+            AddEventFSM.string_field,
+            TextMessageBuilder.create_from_existing_message(self.data_object.last_message)
+        )
+        if self.data_object.string_field is not None:
+            await self.data_object.create_model_instance()

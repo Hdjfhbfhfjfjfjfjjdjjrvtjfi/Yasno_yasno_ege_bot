@@ -1,4 +1,4 @@
-__all__ = ["EventEnum"]
+__all__ = ["EventEnum", "HandlerTypeEnum"]
 from enum import IntEnum
 
 
@@ -11,5 +11,10 @@ class EventEnum(IntEnum):
     :cvar excursion: Represents an excursion event (ID: 1)
     :cvar knowledge_assesment: Represents a knowledge assessment event (ID: 2)
     """
-    excursion = 1  # Excursion event type
-    knowledge_assesment = 2  # Knowledge assessment event type
+    excursion = 1
+    knowledge_assesment = 2
+
+class HandlerTypeEnum(IntEnum):
+    first_handler = 1
+    get_info_handler = 2
+    final_handler = 3

@@ -4,6 +4,8 @@ from aiogram import Bot, Dispatcher
 
 from sys import argv
 
+from aiogram.fsm.strategy import FSMStrategy
+
 from tg_bot import Config, init_database, init_yookassa_api, routers
 
 

@@ -983,6 +983,17 @@ files = [
 cli = ["click (>=5.0)"]
 
 [[package]]
+name = "pytypes"
+version = "1.0b10"
+description = "Typing toolbox for Python 3 _and_ 2."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pytypes-1.0b10-py2.py3-none-any.whl", hash = "sha256:3c7ad90429d3d9f19d48ca025159869e824bfcf3a278adb795d4d800ab541fbf"},
+    {file = "pytypes-1.0b10.tar.gz", hash = "sha256:f9264041c18d8b4779623bc9c10d978e2d2ab73d190fe028f978b3dfcc85256a"},
+]
+
+[[package]]
 name = "pytz"
 version = "2024.2"
 description = "World timezone definitions, modern and historical"
@@ -1299,4 +1310,4 @@ urllib3 = "*"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8a4dd0e55166010c89007a3608870abd7be7551cdd6b4a63440d67abe969f594"
+content-hash = "5f973090314e12b46a7835f0ee570deadde4a4b9a5e95fd8485d9bba93637344"

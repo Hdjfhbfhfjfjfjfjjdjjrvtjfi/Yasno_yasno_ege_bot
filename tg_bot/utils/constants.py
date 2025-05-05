@@ -1,5 +1,6 @@
-__all__ = ["USER_DATA_ARGUMENT_NAME", "KNOWLEDGE_ASSESMENT_DATA_ARGUMENT_NAME", "SCHOOL_GRADE_DATA_ARGUMENT_NAME",
-           "QUESTION_DATA_ARGUMENT_NAME", "EVENT_DATA_ARGUMENT_NAME"]
+__all__ = ["USER_DATA_ARGUMENT_NAME", "TEST_RESULT_DATA_ARGUMENT_NAME", "SCHOOL_GRADE_DATA_ARGUMENT_NAME",
+           "QUESTION_DATA_ARGUMENT_NAME", "EVENT_DATA_ARGUMENT_NAME", "CONFIG_ARGUMENT_NAME",
+           "STATE_CONTEXT_ARGUMENT_NAME", "COMMAND_ARGUMENT_NAME"]
 
 
 USER_DATA_ARGUMENT_NAME = "user_data"
@@ -9,7 +10,7 @@ This constant represents the key used in the state data dictionary to store and 
 user-related information during the bot's operation.
 """
 
-KNOWLEDGE_ASSESMENT_DATA_ARGUMENT_NAME = "test_result_data"
+TEST_RESULT_DATA_ARGUMENT_NAME = "test_result_data"
 """Name of the argument used to pass knowledge assessment test results between handlers.
 
 This constant represents the key used in the state data dictionary to store and retrieve
@@ -36,3 +37,7 @@ EVENT_DATA_ARGUMENT_NAME = "event_data"
 This constant represents the key used in the state data dictionary to store and retrieve
 event-related information for both excursions and knowledge assessment events.
 """
+
+CONFIG_ARGUMENT_NAME = "config"
+STATE_CONTEXT_ARGUMENT_NAME = "state"
+COMMAND_ARGUMENT_NAME = "command"

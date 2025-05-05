@@ -24,18 +24,18 @@ def get_event_question_page_keyboard(connection_link: str, cluster_index: int, e
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
-            text="Задать вопрос",
-            url=connection_link,
-            callback_data=None
-        )
-    )
-    keyboard.row(
-        InlineKeyboardButton(
             text="Назад",
             callback_data=ChooseEventDatePageCallbackData(
                 page_index=cluster_index,
                 event=event_type
             ).pack()
+        )
+    )
+    keyboard.row(
+        InlineKeyboardButton(
+            text="Задать вопрос",
+            url=connection_link,
+            callback_data=None
         )
     )
     return keyboard.as_markup()

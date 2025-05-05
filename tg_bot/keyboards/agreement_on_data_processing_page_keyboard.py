@@ -17,7 +17,7 @@ def agreement_on_data_processing_page_keyboard(agreement_on_data_processing_link
     keyboard = InlineKeyboardBuilder()
     keyboard.row(
         InlineKeyboardButton(
-            text="Соглашение наобработку данных",
+            text="Соглашение на обработку данных",
             url=agreement_on_data_processing_link,
             callback_data=None
         )

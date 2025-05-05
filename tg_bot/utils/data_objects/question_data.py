@@ -3,8 +3,11 @@ from aiogram.types import Message
 
 from pydantic import BaseModel, ConfigDict
 
+from tg_bot.models import TestQuestion
+from tg_bot.utils.interfaces import IDataObject
 
-class QuestionData(BaseModel):
+
+class QuestionData(BaseModel, IDataObject):
     """Data class for storing and managing test question information.
 
     This class represents test question data including the question description,
@@ -21,7 +24,6 @@ class QuestionData(BaseModel):
     description: str | None = None  # The text of the question
     school_grade: int | None = None  # Target school grade for the question
     max_count_of_answers: int | None = None  # Maximum number of allowed answers
-    last_message: Message | None = None  # Last related message from the bot
     answers_descriptions: list[str]  # List of answer descriptions
 
     def __init__(self, **data):
@@ -39,3 +41,6 @@ class QuestionData(BaseModel):
         :return: The number of answers currently associated with the question
         """
         return len(self.answers_descriptions)
+
+    async def create_model_instance(self) -> None:
+        await TestQuestion.create_test_question(self)

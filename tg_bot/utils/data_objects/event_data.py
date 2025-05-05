@@ -3,10 +3,10 @@ from aiogram.types import Message
 
 from pydantic import BaseModel, ConfigDict
 
-from tg_bot.utils.interfaces import IEvent
+from tg_bot.utils.interfaces import IEvent, IDataObject
 
 
-class EventData(BaseModel):
+class EventData(BaseModel, IDataObject):
     """Data class for storing and managing event-related information.
 
     This class represents event data with various attributes for scheduling,
@@ -34,4 +34,6 @@ class EventData(BaseModel):
     max_count_of_buyings: int | None = None  # Maximum number of purchases allowed
     price: int | None = None  # Price of the event
     string_field: str | None = None  # Additional string field for event-specific data
-    last_message: Message | None = None  # Last related message from the bot
+
+    async def create_model_instance(self) -> None:
+        await self.event_type.create_event(self)

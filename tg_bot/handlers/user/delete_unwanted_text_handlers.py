@@ -1,10 +1,10 @@
 from aiogram import Router
-from aiogram.types import Message
+from aiogram.handlers import MessageHandler
 
 
 router = Router()
 
-
 @router.message()
-async def delete_unwanted_text_handler(message: Message) -> None:
-    await message.delete()
+class DeleteUnwantedTextHandler(MessageHandler):
+    async def handle(self) -> None:
+        await self.event.delete()
