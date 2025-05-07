@@ -3,3 +3,6 @@ venv
 .env
 database
 .idea
+test_data/
+.cursor/
+media

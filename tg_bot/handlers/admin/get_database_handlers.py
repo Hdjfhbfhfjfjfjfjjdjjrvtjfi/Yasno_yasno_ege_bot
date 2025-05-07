@@ -1,0 +1,33 @@
+__all__ = ["router"]
+from aiogram import Router
+from aiogram.filters.command import Command
+from aiogram.handlers import MessageHandler
+from aiogram.types import BufferedInputFile
+
+from io import BytesIO
+
+from tg_bot.filters.commands import get_database_command
+from tg_bot.models import (Administrator, BotUserProfile, Excursion, KnowledgeAssesment, Order, SchoolGrade, TestAnswer,
+                           TestQuestion, TestResponse, TestResult, User)
+from tg_bot.utils.interfaces import ICanAcceptModelVisitors
+from tg_bot.utils.visitors.xlsx_visitor import XLSXVisitor
+
+
+router: Router = Router()
+
+
+@router.message(Command(commands=[get_database_command]))
+class GetDatabaseHandler(MessageHandler):
+    async def handle(self) -> None:
+        await self.event.delete()
+        export_visitor = XLSXVisitor()
+        models: list[type[ICanAcceptModelVisitors]] = [Administrator, BotUserProfile, Excursion, KnowledgeAssesment, Order, SchoolGrade, TestAnswer,
+                  TestQuestion, TestResponse, TestResult, User]
+        for model in models:
+            await model.accept(export_visitor)
+        file: BytesIO = BytesIO()
+        export_visitor.workbook.save(file)
+        await self.bot.send_document(
+            chat_id=self.event.chat.id,
+            document=BufferedInputFile(file.getvalue(), "database.xlsx")
+        )
