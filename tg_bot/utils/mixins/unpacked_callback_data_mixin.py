@@ -14,5 +14,4 @@ class UnpackedCallbackDataMixin(Generic[T]):
 
     @property
     def unpacked_callback_data(self) -> T:
-        print(self._get_t_class())
         return self._get_t_class().unpack(self.callback_data)

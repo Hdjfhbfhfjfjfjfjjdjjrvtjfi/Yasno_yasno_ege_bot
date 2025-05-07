@@ -3,6 +3,8 @@ from aiogram import Router
 
 from typing import Optional
 
+from aiogram.types import FSInputFile
+
 from tg_bot.filters.callback_data import (
     ChooseEventDatePageCallbackData,
     ChooseEventDatePageSwitchKeyboardCallbackData,
@@ -17,18 +19,17 @@ from tg_bot.utils.mixins import StateMixin
 from tg_bot.utils.texts import (
     get_excursion_question_page_text,
     get_excursion_pay_page_text,
-    get_main_menu_page_text,
     get_knowledge_assesment_pay_page_text,
     get_knowledge_assesment_question_page_text,
     get_payment_fail_text,
     get_get_user_grade_text,
-    get_payment_succed_go_back_text
+    get_payment_succed_go_back_text, get_excursion_after_buy_text
 )
 from tg_bot.keyboards import (
     get_choose_event_date_page_keyboard,
     get_event_question_page_keyboard,
     get_event_pay_page_keyboard,
-    get_main_menu_page_keyboard,
+    get_event_after_buy_keyboard,
     get_get_user_grade_keyboard
 )
 from tg_bot.models import Order, User, SchoolGrade, KnowledgeAssesment, Excursion
@@ -46,15 +47,29 @@ class ChooseEventDatePageHandler(BaseEventDateHandler[ChooseEventDatePageCallbac
     
     async def handle(self) -> None:
         user = await self.get_user()
-        order = await self.get_user_order(user)
-        if order is None:
+        order = await user.get_order()
+        if (order is None or
+                not (PaymentService.get_payment_by_id(order.order_yookassa_id)).is_succeed):
+            if order is not None:
+                await order.delete()
             data, count_of_clusters = await self.get_events_data(self.unpacked_callback_data.page_index)
-            await self.message.edit_text(text=self.get_text())
-            await self.message.edit_reply_markup(
-                reply_markup=get_choose_event_date_page_keyboard(
-                    data, 0, count_of_clusters, self.unpacked_callback_data.event
+            if self.unpacked_callback_data.event == EventEnum.knowledge_assesment:
+                await self.message.edit_text(text=self.get_text())
+                await self.message.edit_reply_markup(
+                    reply_markup=get_choose_event_date_page_keyboard(
+                        data, self.unpacked_callback_data.page_index, count_of_clusters, self.unpacked_callback_data.event
+                    )
                 )
-            )
+            else:
+                await self.event.message.delete()
+                await self.bot.send_photo(
+                    chat_id=self.event.message.chat.id,
+                    photo=FSInputFile(self.config.excursion_image_path),
+                    caption=self.get_text(),
+                    reply_markup=get_choose_event_date_page_keyboard(
+                        data, self.unpacked_callback_data.page_index, count_of_clusters, self.unpacked_callback_data.event
+                    )
+                )
         else:
             await self.event.answer(text=get_payment_succed_go_back_text())
 
@@ -67,9 +82,9 @@ class ChooseEventDatePageSwitchHandler(BaseEventDateHandler[ChooseEventDatePageS
         data, count_of_clusters = await self.get_events_data(self.unpacked_callback_data.page_index)
         await self.message.edit_reply_markup(
             reply_markup=get_choose_event_date_page_keyboard(
-                data, 
-                self.unpacked_callback_data.page_index, 
-                count_of_clusters, 
+                data,
+                self.unpacked_callback_data.page_index,
+                count_of_clusters,
                 self.unpacked_callback_data.event
             )
         )
@@ -80,14 +95,26 @@ class EventQuestionPageHandler(BaseEventHandler[EventQuestionPageCallbackData]):
     """Handler for event question page."""
     
     async def handle(self) -> None:
-        await self.message.edit_text(text=self.get_text())
-        await self.message.edit_reply_markup(
-            reply_markup=get_event_question_page_keyboard(
-                self.config.connection_link, 
-                self.unpacked_callback_data.page_index, 
-                self.unpacked_callback_data.event
+        if self.unpacked_callback_data.event == EventEnum.knowledge_assesment:
+            await self.message.edit_text(text=self.get_text())
+            await self.message.edit_reply_markup(
+                reply_markup=get_event_question_page_keyboard(
+                    self.config.connection_link,
+                    self.unpacked_callback_data.page_index,
+                    self.unpacked_callback_data.event
+                )
             )
-        )
+        else:
+            await self.event.message.delete()
+            await self.bot.send_message(
+                chat_id=self.event.message.chat.id,
+                text=self.get_text(),
+                reply_markup=get_event_question_page_keyboard(
+                    self.config.connection_link,
+                    self.unpacked_callback_data.page_index,
+                    self.unpacked_callback_data.event
+                )
+            )
 
     def get_text(self) -> str:
         """Get the text for the event question page."""
@@ -110,14 +137,26 @@ class EventPageHandler(BaseEventHandler[EventPageCallbackData]):
         )
         order = await Order.create_order(payment.payment_id)
         await user.set_order(order)
-        await self.message.edit_text(text=self.get_text(event))
-        await self.message.edit_reply_markup(
-            reply_markup=get_event_pay_page_keyboard(
-                payment.payment_url, 
-                self.unpacked_callback_data.page_index, 
-                self.unpacked_callback_data.event
+        if self.unpacked_callback_data.event == EventEnum.knowledge_assesment:
+            await self.message.edit_text(text=self.get_text(event))
+            await self.message.edit_reply_markup(
+                reply_markup=get_event_pay_page_keyboard(
+                    payment.payment_url,
+                    self.unpacked_callback_data.page_index,
+                    self.unpacked_callback_data.event
+                )
             )
-        )
+        else:
+            await self.event.message.delete()
+            await self.bot.send_message(
+                chat_id=self.event.message.chat.id,
+                text=self.get_text(event),
+                reply_markup=get_event_pay_page_keyboard(
+                    payment.payment_url,
+                    self.unpacked_callback_data.page_index,
+                    self.unpacked_callback_data.event
+                )
+            )
 
     def get_text(self, event: IEvent) -> str:
         """Get the text for the event payment page."""
@@ -152,11 +191,11 @@ class EventCheckPaymentPageHandler(BaseEventHandler[EventCheckPaymentPageCallbac
             return event
         return None
 
-    def get_text(self, event: Optional[IEvent] = None) -> str:
+    def get_text(self, event: Optional[Excursion | KnowledgeAssesment] = None) -> str:
         """Get the text for the payment check page."""
         if event is None:
             return get_payment_fail_text()
-        return (get_main_menu_page_text()
+        return (get_excursion_after_buy_text(event.address)
                 if self.unpacked_callback_data.event == EventEnum.excursion
                 else get_get_user_grade_text())
 
@@ -166,11 +205,7 @@ class EventCheckPaymentPageHandler(BaseEventHandler[EventCheckPaymentPageCallbac
         await user_profile.set_excursion_profile(ExcursionProfile(event))
         await self.message.edit_text(text=self.get_text(event))
         await self.message.edit_reply_markup(
-            reply_markup=get_main_menu_page_keyboard(
-                self.config.connection_link,
-                await user_profile.has_excursion(),
-                await user_profile.has_knowledge_assesment()
-            )
+            reply_markup=get_event_after_buy_keyboard()
         )
 
     async def postprocess_knowledge_assesment_payment(self, event: KnowledgeAssesment):

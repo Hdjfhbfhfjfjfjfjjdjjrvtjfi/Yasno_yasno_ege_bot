@@ -2,7 +2,8 @@ from __future__ import annotations
 __all__ = ["GetUserDataPageCallbackData", "ChooseEventDatePageCallbackData", "UserProfilePageCallbackData",
            "EventPageCallbackData", "EventQuestionPageCallbackData", "MainMenuPageCallbackData",
            "ChooseEventDatePageSwitchKeyboardCallbackData", "EventCheckPaymentPageCallbackData",
-           "GetUserGradeCallbackData", "GetResponseToQuestionCallbackData", "QuestionSchoolGradeCallbackData"]
+           "GetUserGradeCallbackData", "GetResponseToQuestionCallbackData", "QuestionSchoolGradeCallbackData",
+           "AfterBuyKnowledgeAssesmentPageCallbackData", "SecondAfterBuyKnowledgeAssesmentGuidePageCallbackData"]
 from aiogram.filters.callback_data import CallbackData
 
 from tg_bot.utils.enums import EventEnum
@@ -116,6 +117,15 @@ class GetResponseToQuestionCallbackData(CallbackData, prefix="get_response_to_qu
     :ivar answer_id: ID of the selected answer
     """
     answer_id: str
+# </editor-fold>
+
+# <editor-fold desc="Event after buy callback data">
+class SecondAfterBuyKnowledgeAssesmentGuidePageCallbackData(CallbackData,
+                                                            prefix="second_after_buy_knowledge_assessment_guide_page"):
+    pass
+
+class AfterBuyKnowledgeAssesmentPageCallbackData(CallbackData, prefix="after_buy_knowledge_assessment_guide_page"):
+    pass
 # </editor-fold>
 
 # <editor-fold desc="Add question callback data">

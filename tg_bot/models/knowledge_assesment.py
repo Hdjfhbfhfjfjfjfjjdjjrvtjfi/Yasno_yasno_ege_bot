@@ -86,7 +86,7 @@ class KnowledgeAssesment(Model, IEvent, ClusterFetcherMixin, ICanAcceptModelVisi
         
         :return: List containing the assessment's date and webinar link
         """
-        return [self.date, self.webinar_link]
+        return [self.date]
 
     async def get_count_of_buyings(self) -> int:
         """Returns the count of users that have purchased this knowledge assessment.

@@ -23,7 +23,7 @@ def get_main_menu_page_keyboard(connection_link: str, has_excursion: bool, has_k
     if not has_excursion:
         keyboard.row(
             InlineKeyboardButton(
-                text="Записаться на экскурсию \"Русский язык на Вятке\"",
+                text="Записаться на квест \"Тайны русского языка\"",
                 callback_data=ChooseEventDatePageCallbackData(event=EventEnum.excursion).pack()
             )
         )

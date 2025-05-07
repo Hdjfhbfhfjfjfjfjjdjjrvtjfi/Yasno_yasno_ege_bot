@@ -34,6 +34,9 @@ class Config:
     cluster_size: int
     yookassa_account_id: str
     yookassa_secret_key: str
+    first_guide_image_path: str
+    second_guide_image_path: str
+    excursion_image_path: str
 
     @classmethod
     def load_config(cls, dot_env_path: str) -> "Config":
@@ -59,4 +62,7 @@ class Config:
             yookassa_account_id=env.str("YOOKASSA_ACCOUNT_ID"),
             yookassa_secret_key=env.str("YOOKASSA_SECRET_KEY"),
             bot_link=env.str("BOT_LINK"),
+            first_guide_image_path=env.str("FIRST_GUIDE_IMAGE_PATH"),
+            second_guide_image_path=env.str("SECOND_GUIDE_IMAGE_PATH"),
+            excursion_image_path=env.str("EXCURSION_IMAGE_PATH"),
         )

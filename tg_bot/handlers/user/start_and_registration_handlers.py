@@ -75,11 +75,10 @@ class MainMenuHandler(CallbackQueryHandler, ConfigMixin):
         """
         user = await User.get_user_by_id(self.event.message.chat.id)
         user_profile = await user.get_user_profile()
-        
-        await self.event.message.edit_text(
+        await self.event.message.delete()
+        await self.bot.send_message(
+            chat_id=self.event.message.chat.id,
             text=get_main_menu_page_text(),
-        )
-        await self.event.message.edit_reply_markup(
             reply_markup=get_main_menu_page_keyboard(
                 self.config.connection_link,
                 await user_profile.has_excursion(),

@@ -5,12 +5,15 @@ from typing import Any
 
 from abc import abstractmethod
 
+from aiogram.types import FSInputFile
+
+from tg_bot.filters.callback_data import SecondAfterBuyKnowledgeAssesmentGuidePageCallbackData
 from tg_bot.utils.data_objects import TestResultData
 from tg_bot.models import TestQuestion, User, TestResult
 from tg_bot.utils.wrap_classes import KnowledgeAssesmentProfile
-from tg_bot.utils.texts import get_main_menu_page_text
+from tg_bot.utils.texts import get_knowledge_assesment_after_buy_first_guide_page_text
 from tg_bot.utils.mixins import ConfigMixin, DataObjectMixin
-from tg_bot.keyboards import get_main_menu_page_keyboard, get_knowledge_assesment_question_keyboard
+from tg_bot.keyboards import get_knowledge_assesment_question_keyboard, get_knowledge_assesment_after_buy_guide_keyboard
 
 
 class KnowledgeAssesmentTestHandler(CallbackQueryHandler, ConfigMixin, DataObjectMixin[TestResultData]):
@@ -42,12 +45,12 @@ class KnowledgeAssesmentTestHandler(CallbackQueryHandler, ConfigMixin, DataObjec
                 test_result
             )
         )
-
-        await self.message.edit_text(text=get_main_menu_page_text())
-        await self.message.edit_reply_markup(
-            reply_markup=get_main_menu_page_keyboard(
-                self.config.connection_link,
-                await user_profile.has_excursion(),
-                await user_profile.has_knowledge_assesment()
+        await self.event.message.delete()
+        await self.bot.send_photo(
+            chat_id=self.event.message.chat.id,
+            photo=FSInputFile(self.config.first_guide_image_path),
+            caption=get_knowledge_assesment_after_buy_first_guide_page_text(self.data_object.knowledge_assesment.webinar_link),
+            reply_markup=get_knowledge_assesment_after_buy_guide_keyboard(
+                SecondAfterBuyKnowledgeAssesmentGuidePageCallbackData
             )
         )
